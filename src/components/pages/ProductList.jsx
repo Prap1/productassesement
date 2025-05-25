@@ -5,16 +5,25 @@ import { fetchProducts } from '../redux/productSlice';
 import '../styles/ProductList.css';
 import Navbar from '../common/Navbar';
 import Footer from '../common/Footer';
+import Loader from '../common/Loader';
 
 function ProductList() {
   const dispatch = useDispatch();
   const { items: products, error } = useSelector((state) => state.products);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  const handleReload = () => {
+    setIsLoading(true);
+    dispatch(fetchProducts()).finally(() => {
+      setIsLoading(false);
+    });
+  };
 
   // Get unique categories from products
   const categories = ['all', ...new Set(products.map(product => product.category))];
@@ -69,6 +78,14 @@ function ProductList() {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Reload Button and Loader */}
+        <div className="reload-section">
+          <button onClick={handleReload} className="reload-button" disabled={isLoading}>
+            {isLoading ? 'Reloading...' : 'Reload Products'}
+          </button>
+          {isLoading && <Loader />}
         </div>
 
         <div className="products-grid">
