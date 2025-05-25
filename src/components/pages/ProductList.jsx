@@ -12,18 +12,21 @@ function ProductList() {
   const { items: products, error } = useSelector((state) => state.products);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
-
-  const handleReload = () => {
     setIsLoading(true);
-    dispatch(fetchProducts()).finally(() => {
+    // Fetch products immediately
+    dispatch(fetchProducts());
+    
+    // Set a timeout for 20 seconds
+    const timer = setTimeout(() => {
       setIsLoading(false);
-    });
-  };
+    }, 10000); // 10 seconds
+
+    // Cleanup the timer if component unmounts
+    return () => clearTimeout(timer);
+  }, [dispatch]);
 
   // Get unique categories from products
   const categories = ['all', ...new Set(products.map(product => product.category))];
@@ -80,24 +83,28 @@ function ProductList() {
           </div>
         </div>
 
-        {/* Reload Button and Loader */}
-        <div className="reload-section">
-          <button onClick={handleReload} className="reload-button" disabled={isLoading}>
-            {isLoading ? 'Reloading...' : 'Reload Products'}
-          </button>
-          {isLoading && <Loader />}
-        </div>
-
-        <div className="products-grid">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-        
-        {filteredProducts.length === 0 && (
-          <div className="no-products">
-            <p>No products found matching your criteria.</p>
+        {/* Loader Section */}
+        {isLoading && (
+          <div className="loader-section">
+            <Loader />
+            <p className="loading-text">Loading products...</p>
           </div>
+        )}
+
+        {!isLoading && (
+          <>
+            <div className="products-grid">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            
+            {filteredProducts.length === 0 && (
+              <div className="no-products">
+                <p>No products found matching your criteria.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
       <Footer />
