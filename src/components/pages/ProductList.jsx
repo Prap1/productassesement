@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ProductCard from '../common/ProductCard';
 import { fetchProducts } from '../redux/productSlice';
@@ -8,24 +8,61 @@ import Footer from '../common/Footer';
 
 function ProductList() {
   const dispatch = useDispatch();
-  const { items: products, error } = useSelector((state) => state.products);
+  const { items: allProducts, error } = useSelector((state) => state.products);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const productsPerPage = 10;
 
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
   // Get unique categories from products
-  const categories = ['all', ...new Set(products.map(product => product.category))];
+  const categories = ['all', ...new Set(allProducts.map(product => product.category))];
 
   // Filter products based on search term and category
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = allProducts.filter(product => {
     const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Update displayed products when filters change
+  useEffect(() => {
+    setPage(1);
+    setDisplayedProducts(filteredProducts.slice(0, productsPerPage));
+  }, [searchTerm, selectedCategory, filteredProducts]);
+
+  // Load more products when scrolling
+  const loadMoreProducts = useCallback(() => {
+    const nextPage = page + 1;
+    const startIndex = 0;
+    const endIndex = nextPage * productsPerPage;
+    const newProducts = filteredProducts.slice(startIndex, endIndex);
+    
+    if (newProducts.length > displayedProducts.length) {
+      setDisplayedProducts(newProducts);
+      setPage(nextPage);
+    }
+  }, [page, filteredProducts, displayedProducts.length]);
+
+  // Handle scroll event
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop
+        === document.documentElement.offsetHeight
+      ) {
+        loadMoreProducts();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMoreProducts]);
 
   if (error) {
     return (
@@ -72,14 +109,20 @@ function ProductList() {
         </div>
 
         <div className="products-grid">
-          {filteredProducts.map((product) => (
+          {displayedProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
         
-        {filteredProducts.length === 0 && (
+        {displayedProducts.length === 0 && (
           <div className="no-products">
             <p>No products found matching your criteria.</p>
+          </div>
+        )}
+
+        {displayedProducts.length < filteredProducts.length && (
+          <div className="load-more">
+            <p>Scroll down to load more products</p>
           </div>
         )}
       </div>
