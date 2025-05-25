@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ProductCard from '../common/ProductCard';
-import Loader from '../common/Loader';
 import { fetchProducts } from '../redux/productSlice';
 import '../styles/ProductList.css';
 import Navbar from '../common/Navbar';
@@ -9,7 +8,7 @@ import Footer from '../common/Footer';
 
 function ProductList() {
   const dispatch = useDispatch();
-  const { items: products, loading, error } = useSelector((state) => state.products);
+  const { items: products, error } = useSelector((state) => state.products);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -27,10 +26,6 @@ function ProductList() {
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
-  if (loading) {
-    return <Loader />;
-  }
 
   if (error) {
     return (
