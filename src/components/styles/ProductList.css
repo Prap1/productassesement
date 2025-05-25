@@ -194,6 +194,38 @@
   color: #666;
 }
 
+.load-more {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.load-more p {
+  position: relative;
+  display: inline-block;
+  padding: 0 20px;
+}
+
+.load-more p::before,
+.load-more p::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.load-more p::before {
+  left: -20px;
+}
+
+.load-more p::after {
+  right: -20px;
+}
+
 /* Large Desktop */
 @media (min-width: 1400px) {
   .product-list {
