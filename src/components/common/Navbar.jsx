@@ -8,12 +8,10 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <div className="logo">MyLogo</div>
+      <div className="logo">ShopKart</div>
       <div className={`nav-links ${isOpen ? 'open' : ''}`}>
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Services</a>
-        <a href="#">Contact</a>
+        <a href="/">Home</a>
+        <a href="/">products</a>
       </div>
       <div className="hamburger" onClick={toggleMenu}>
         <span className="bar"></span>

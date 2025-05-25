@@ -22,7 +22,7 @@ function ProductList() {
     // Set a timeout for 20 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 10000); // 10 seconds
+    }, 1000); 
 
     // Cleanup the timer if component unmounts
     return () => clearTimeout(timer);
